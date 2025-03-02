@@ -1,0 +1,13 @@
+{
+  "general": {
+    "welcome": "Welcome",
+    "password": "Password",
+    "login": "Login"
+  },
+  "errors": {
+    "invalid_credentials": "Invalid username or password"
+  },
+  "validation": {
+    "invalid_email": "Please enter a valid email"
+  }
+}

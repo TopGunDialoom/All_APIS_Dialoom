@@ -1,0 +1,13 @@
+{
+  "general": {
+    "welcome": "¡Bienvenido!",
+    "password": "Contraseña",
+    "login": "Iniciar sesión"
+  },
+  "errors": {
+    "invalid_credentials": "Usuario o contraseña inválidos"
+  },
+  "validation": {
+    "invalid_email": "Ingrese un correo válido"
+  }
+}

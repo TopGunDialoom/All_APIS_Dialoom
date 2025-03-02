@@ -1,41 +1,46 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { JwtModule } from '@nestjs/jwt';
-
-import { AuthModule } from './auth/auth.module';
-import { UsersModule } from './users/user.module';
-import { ReservationsModule } from './reservations/reservation.module';
-import { PaymentsModule } from './payments/payment.module';
-import { NotificationModule } from './notifications/notification.module';
-import { CallsModule } from './calls/calls.module';
-import { GamificationModule } from './gamification/gamification.module';
-import { AdminModule } from './admin/admin.module';
-import { TicketsModule } from './tickets/tickets.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { UsersModule } from './modules/users/users.module';
+import { PaymentsModule } from './modules/payments/payments.module';
+import { GamificationModule } from './modules/gamification/gamification.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
+import { SupportModule } from './modules/support/support.module';
+import { AdminModule } from './modules/admin/admin.module';
+// Ejemplo: import { ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: process.env.DB_HOST,
-      port: parseInt(process.env.DB_PORT) || 5432,
-      username: process.env.DB_USERNAME,
-      password: process.env.DB_PASSWORD,
-      database: process.env.DB_NAME,
-      autoLoadEntities: true,
-      synchronize: false
+    // Ejemplo Throttler:
+    // ThrottlerModule.forRoot({
+    //   ttl: 60,
+    //   limit: 100,
+    // }),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (config: ConfigService) => ({
+        type: 'postgres',
+        host: config.get<string>('POSTGRES_HOST', 'localhost'),
+        port: +config.get<number>('POSTGRES_PORT', 5432),
+        username: config.get<string>('POSTGRES_USER'),
+        password: config.get<string>('POSTGRES_PASSWORD'),
+        database: config.get<string>('POSTGRES_DB'),
+        entities: [__dirname + '/modules/**/*.entity.{js,ts}'],
+        synchronize: false, // En producción usar migraciones
+      }),
+      inject: [ConfigService],
     }),
-    JwtModule.register({ secret: process.env.JWT_SECRET || 'secretKey' }),
     AuthModule,
     UsersModule,
-    ReservationsModule,
     PaymentsModule,
-    NotificationModule,
-    CallsModule,
     GamificationModule,
-    AdminModule,
-    TicketsModule
-  ]
+    NotificationsModule,
+    SupportModule,
+    AdminModule
+  ],
+  controllers: [],
+  providers: [],
 })
 export class AppModule {}

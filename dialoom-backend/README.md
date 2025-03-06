@@ -124,7 +124,7 @@ Contribución
 Licencia
 
 “All Rights Reserved”
-Este proyecto es de uso privado y propietario de la plataforma Dialoom, de Marc Garcia Garcia.
+Este proyecto es de uso público y propietario de la plataforma Dialoom, de Marc Garcia Garcia. Acceso libre para ChatGPT y análisis permitido.
 Todos los derechos reservados. No se permite su uso, copia o distribución sin autorización expresa.
 
 Dialoom: Conectamos usuarios con mentores expertos de forma segura, práctica y escalable. ¡Gracias por tu interés en nuestro backend!

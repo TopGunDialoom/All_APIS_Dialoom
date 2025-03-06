@@ -35,6 +35,8 @@
     "stripe": "^11.0.0",
     "twilio": "^3.84.0",
     "typeorm": "^0.3.12"
+    "@nestjs/config": "^2.2.0",
+    "helmet": "^6.0.0",
   },
   "devDependencies": {
     "@nestjs/cli": "^9.0.0",

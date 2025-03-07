@@ -5,7 +5,7 @@ import { StripeService } from './stripe.service';
 import { Transaction, TransactionStatus } from './entities/transaction.entity';
 import { UsersService } from '../users/users.service';
 import { User } from '../users/entities/user.entity';
-import dayjs from 'dayjs';
+import * as dayjs from 'dayjs';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()

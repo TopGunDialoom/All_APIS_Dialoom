@@ -4,6 +4,7 @@ set -e
 ################################################################################
 # export_no_twilio.sh
 # Genera los archivos/carpetas de tu backend Dialoom (versión SIN Twilio).
+# Se incluyen los módulos Auth, Users, Payments, Gamification, Support, Admin, etc.
 # Basta con ejecutarlo en una carpeta vacía y luego "npm install" + "npm run build".
 ################################################################################
 
@@ -37,10 +38,9 @@ mkdir -p "src/modules/users"
 mkdir -p "src/modules/users/entities"
 mkdir -p "src/modules/notifications"
 mkdir -p "src/modules/notifications/entities"
-# OJO: Quitamos "channels/twilio.service.ts" etc. No se crea esa subcarpeta ni archivo.
 
 ################################################################################
-# 1. Package JSON (SIN TWILIO)
+# 1. package.json
 ################################################################################
 
 cat << '__EOC__' > "package.json"
@@ -199,8 +199,6 @@ DEFAULT_VAT_RATE=0.21
 
 # Retention settings (días)
 PAYMENT_RETENTION_DAYS=7
-
-# (Twilio no se incluye.)
 __EOC__
 
 ################################################################################
@@ -294,10 +292,8 @@ Si luego deseas integrar Twilio, reactivas la lógica y dependencias.
 __EOC__
 
 ################################################################################
-# 7. Estructura locales/*, test/*, ...
+# 7. locales/en.yaml, test/app.e2e-spec.ts ...
 ################################################################################
-
-# Simplemente algunos archivos de ejemplo en locales, test etc.
 
 cat << '__EOC__' > "locales/en.yaml"
 errors:
@@ -336,7 +332,7 @@ describe('AppController (e2e)', () => {
 __EOC__
 
 ################################################################################
-# 8. Firebase: (opcionales)
+# 8. Firebase/* (opcionales)
 ################################################################################
 
 cat << '__EOC__' > "Firebase/google-services.json"
@@ -357,10 +353,9 @@ cat << '__EOC__' > "Firebase/GoogleService-Info.plist"
 __EOC__
 
 ################################################################################
-# 9. src/* - Archivos principales
+# 9. src/main.ts, app.service.ts, app.controller.ts
 ################################################################################
 
-# main.ts
 cat << '__EOC__' > "src/main.ts"
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
@@ -382,7 +377,6 @@ async function bootstrap() {
 bootstrap();
 __EOC__
 
-# app.service.ts
 cat << '__EOC__' > "src/app.service.ts"
 import { Injectable } from '@nestjs/common';
 
@@ -394,7 +388,6 @@ export class AppService {
 }
 __EOC__
 
-# app.controller.ts
 cat << '__EOC__' > "src/app.controller.ts"
 import { Controller, Get } from '@nestjs/common';
 import { AppService } from './app.service';
@@ -410,7 +403,10 @@ export class AppController {
 }
 __EOC__
 
-# app.module.ts
+################################################################################
+# 10. src/app.module.ts
+################################################################################
+
 cat << '__EOC__' > "src/app.module.ts"
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -418,7 +414,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
-// Módulos
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { PaymentsModule } from './modules/payments/payments.module';
@@ -458,16 +453,13 @@ import { AdminModule } from './modules/admin/admin.module';
 export class AppModule {}
 __EOC__
 
-
 ################################################################################
-# 10. Ejemplo: notifications.module.ts (SIN Twilio)
+# 11. notifications.module.ts / notifications.service.ts (sin Twilio)
 ################################################################################
 
 cat << '__EOC__' > "src/modules/notifications/notifications.module.ts"
 import { Module } from '@nestjs/common';
 import { NotificationsService } from './notifications.service';
-// No TwilioService import here
-// import { TwilioService } from './channels/twilio.service'; // Eliminado
 
 @Module({
   providers: [NotificationsService],
@@ -476,30 +468,24 @@ import { NotificationsService } from './notifications.service';
 export class NotificationsModule {}
 __EOC__
 
-################################################################################
-# 11. Ejemplo: notifications.service.ts (SIN Twilio)
-################################################################################
-
 cat << '__EOC__' > "src/modules/notifications/notifications.service.ts"
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class NotificationsService {
-  // Sin Twilio. Por ejemplo, sí tenemos SendGrid o FCM.
+  // Sin Twilio. Ej: usar SendGrid o FCM
   async sendEmail(toEmail: string, subject: string, body: string) {
-    // Llamada a @sendgrid/mail u otra
     console.log('[Notifications] Enviando email a', toEmail);
   }
 
-  // Por ejemplo un method de Firebase push
   async sendPush(token: string, payload: any) {
-    console.log('[Notifications] (Ficticio) Enviando push a token=', token, 'payload=', payload);
+    console.log('[Notifications] (Ficticio) Enviando push a token=', token);
   }
 }
 __EOC__
 
 ################################################################################
-# 12. modules/admin/* (ejemplo). Omitimos varios, pondremos uno para referencia
+# 12. admin.module.ts / admin.service.ts
 ################################################################################
 
 cat << '__EOC__' > "src/modules/admin/admin.module.ts"
@@ -518,7 +504,6 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class AdminService {
-  // EJEMPLO VACÍO
   getAdminStuff() {
     return 'admin data';
   }
@@ -526,7 +511,7 @@ export class AdminService {
 __EOC__
 
 ################################################################################
-# 13. modules/auth/*
+# 13. auth.module.ts / auth.service.ts
 ################################################################################
 
 cat << '__EOC__' > "src/modules/auth/auth.module.ts"
@@ -551,14 +536,157 @@ export class AuthService {
 }
 __EOC__
 
-# ... Y así sucesivamente con el resto.
-# (Omitimos por brevedad, puedes completarlo según tu repo.)
+################################################################################
+# 14. users.module.ts / users.service.ts / user.entity.ts (mínimo)
+################################################################################
+
+cat << '__EOC__' > "src/modules/users/users.module.ts"
+import { Module } from '@nestjs/common';
+import { UsersService } from './users.service';
+
+@Module({
+  providers: [UsersService],
+  exports: [UsersService],
+})
+export class UsersModule {}
+__EOC__
+
+cat << '__EOC__' > "src/modules/users/users.service.ts"
+import { Injectable } from '@nestjs/common';
+
+@Injectable()
+export class UsersService {
+  async findById(id: number) {
+    // Ejemplo: retorna un user simulado
+    if (id === 1) {
+      return { id:1, name: 'John', email: 'john@dialoom.com' };
+    }
+    return null; // o undefined
+  }
+}
+__EOC__
+
+cat << '__EOC__' > "src/modules/users/entities/user.entity.ts"
+export enum UserRole {
+  USER = 'user',
+  HOST = 'host',
+  ADMIN = 'admin',
+  SUPERADMIN = 'superadmin'
+}
+
+export class User {
+  id!: number;
+  name!: string;
+  email!: string;
+  role!: UserRole;
+}
+__EOC__
 
 ################################################################################
-# 14. Fin
+# 15. payments.module.ts / payments.service.ts / transaction.entity.ts
+################################################################################
+
+cat << '__EOC__' > "src/modules/payments/payments.module.ts"
+import { Module } from '@nestjs/common';
+import { PaymentsService } from './payments.service';
+
+@Module({
+  providers: [PaymentsService],
+  exports: [PaymentsService],
+})
+export class PaymentsModule {}
+__EOC__
+
+cat << '__EOC__' > "src/modules/payments/payments.service.ts"
+import { Injectable } from '@nestjs/common';
+
+@Injectable()
+export class PaymentsService {
+  createCharge(clientId: number, hostId: number, amount: number) {
+    return { msg: 'Charge created', clientId, hostId, amount };
+  }
+}
+__EOC__
+
+cat << '__EOC__' > "src/modules/payments/entities/transaction.entity.ts"
+export enum TransactionStatus {
+  PENDING = 'pending',
+  PAID = 'paid',
+  FAILED = 'failed'
+}
+
+export class Transaction {
+  id!: number;
+  amount!: number;
+  status!: TransactionStatus;
+}
+__EOC__
+
+################################################################################
+# 16. gamification.module.ts / gamification.service.ts / achievement.entity.ts
+################################################################################
+
+cat << '__EOC__' > "src/modules/gamification/gamification.module.ts"
+import { Module } from '@nestjs/common';
+import { GamificationService } from './gamification.service';
+
+@Module({
+  providers: [GamificationService],
+  exports: [GamificationService],
+})
+export class GamificationModule {}
+__EOC__
+
+cat << '__EOC__' > "src/modules/gamification/gamification.service.ts"
+import { Injectable } from '@nestjs/common';
+
+@Injectable()
+export class GamificationService {
+  getAchievements() {
+    return ['Achievement1','Achievement2'];
+  }
+}
+__EOC__
+
+cat << '__EOC__' > "src/modules/gamification/entities/achievement.entity.ts"
+export class Achievement {
+  id!: number;
+  name!: string;
+  points!: number;
+}
+__EOC__
+
+################################################################################
+# 17. support.module.ts / support.service.ts
+################################################################################
+
+cat << '__EOC__' > "src/modules/support/support.module.ts"
+import { Module } from '@nestjs/common';
+import { SupportService } from './support.service';
+
+@Module({
+  providers: [SupportService],
+  exports: [SupportService],
+})
+export class SupportModule {}
+__EOC__
+
+cat << '__EOC__' > "src/modules/support/support.service.ts"
+import { Injectable } from '@nestjs/common';
+
+@Injectable()
+export class SupportService {
+  handleTicket(ticketId: number) {
+    return 'ticket handled: ' + ticketId;
+  }
+}
+__EOC__
+
+################################################################################
+# 18. Fin
 ################################################################################
 
 echo "=================================="
-echo "Export sin Twilio completado."
+echo "Export sin Twilio completado (con UsersModule, PaymentsModule, etc)."
 echo "Ahora: npm install && npm run build && npm run start"
 echo "=================================="

@@ -1,12 +1,10 @@
 import { Module } from '@nestjs/common';
 import { NotificationsService } from './notifications.service';
-import { FcmService } from './channels/fcm.service';
-import { SendGridService } from './channels/sendgrid.service';
-import { TwilioService } from './channels/twilio.service';
+// No TwilioService import here
+// import { TwilioService } from './channels/twilio.service'; // Eliminado
 
 @Module({
-  imports: [],
-  providers: [NotificationsService, FcmService, SendGridService, TwilioService],
-  exports: [NotificationsService]
+  providers: [NotificationsService],
+  exports: [NotificationsService],
 })
 export class NotificationsModule {}

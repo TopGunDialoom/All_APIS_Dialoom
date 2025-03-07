@@ -1,6 +1,10 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+
+// Módulos
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { PaymentsModule } from './modules/payments/payments.module';
@@ -8,16 +12,10 @@ import { GamificationModule } from './modules/gamification/gamification.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { SupportModule } from './modules/support/support.module';
 import { AdminModule } from './modules/admin/admin.module';
-// Ejemplo: import { ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
-    // Ejemplo Throttler:
-    // ThrottlerModule.forRoot({
-    //   ttl: 60,
-    //   limit: 100,
-    // }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (config: ConfigService) => ({
@@ -28,7 +26,7 @@ import { AdminModule } from './modules/admin/admin.module';
         password: config.get<string>('POSTGRES_PASSWORD'),
         database: config.get<string>('POSTGRES_DB'),
         entities: [__dirname + '/modules/**/*.entity.{js,ts}'],
-        synchronize: false, // En producción usar migraciones
+        synchronize: false,
       }),
       inject: [ConfigService],
     }),
@@ -40,7 +38,7 @@ import { AdminModule } from './modules/admin/admin.module';
     SupportModule,
     AdminModule
   ],
-  controllers: [],
-  providers: [],
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule {}

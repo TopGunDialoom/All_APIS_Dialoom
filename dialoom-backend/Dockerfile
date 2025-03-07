@@ -1,4 +1,4 @@
-# Dockerfile: Construye la imagen para el backend de Dialoom (versión final optimizada)
+# Dockerfile para Dialoom (versión sin Twilio)
 
 # Etapa 1: build
 FROM node:18-alpine AS builder

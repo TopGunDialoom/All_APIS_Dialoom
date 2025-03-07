@@ -1,0 +1,49 @@
+//{
+//  "compilerOptions": {
+//    "module": "commonjs",
+//    "target": "ES2021",
+//    "lib": ["ES2021", "DOM"],
+//    "outDir": "./dist",
+//   "rootDir": "./src",
+//    "strict": true,
+//   "esModuleInterop": true,
+//   "emitDecoratorMetadata": true,
+//  "experimentalDecorators": true,
+//   "skipLibCheck": true
+//  },
+//"include": ["src/**/*"],
+// "exclude": ["node_modules", "dist", "test"]
+//}
+
+{
+  "compilerOptions": {
+    // Módulo de salida (usualmente CommonJS en NestJS)
+    "module": "commonjs",
+    // Target ECMAScript
+    "target": "ES2021",
+    // Librerías a usar
+    "lib": ["ES2021", "DOM"],
+    // Carpeta de salida con el build compilado
+    "outDir": "./dist",
+    // Carpeta base de tu código fuente
+    "rootDir": "./src",
+    
+    // Habilita el modo estricto
+    "strict": true,
+    // Pero desactiva la inicialización estricta de propiedades en las clases
+    "strictPropertyInitialization": false,
+
+    // Permite import/export de módulos ES
+    "esModuleInterop": true,
+    // Decoradores y metadatos (Nest los requiere)
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    
+    // Salta la comprobación de los tipos de las dependencias (para evitar problemas con @types)
+    "skipLibCheck": true
+  },
+  // Incluye tu carpeta src
+  "include": ["src/**/*"],
+  // Excluye node_modules, dist, test (o lo que desees)
+  "exclude": ["node_modules", "dist", "test"]
+}

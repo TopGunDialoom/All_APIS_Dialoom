@@ -1,45 +1,54 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn
+} from 'typeorm';
 
 export enum UserRole {
   USER = 'user',
   HOST = 'host',
   ADMIN = 'admin',
-  SUPERADMIN = 'superadmin'
+  SUPERADMIN = 'superadmin',
 }
 
 @Entity()
 export class User {
   @PrimaryGeneratedColumn()
-  id: number;
+  id!: number;  // con ! para indicar a TS que lo maneja TypeORM
 
   @Column({ length: 100 })
-  name: string;
+  name!: string;
 
   @Column({ unique: true, length: 150 })
-  email: string;
+  email!: string;
 
-  @Column({ type: 'enum', enum: UserRole, default: UserRole.USER })
-  role: UserRole;
+  @Column({
+    type: 'enum',
+    enum: UserRole,
+    default: UserRole.USER
+  })
+  role!: UserRole;
 
   @Column({ default: false })
-  isVerified: boolean;  // verificación de identidad completada?
+  isVerified!: boolean;  // verificación de identidad completada?
 
   @Column({ default: false })
-  twoFactorEnabled: boolean;
+  twoFactorEnabled!: boolean;
 
   @Column({ nullable: true })
-  twoFactorSecret: string;
+  twoFactorSecret!: string; // Campo opcional
 
   @Column({ nullable: true })
-  stripeAccountId?: string;  // ID de cuenta Stripe Connect si es host
+  stripeAccountId?: string; // También opcional
 
   // Gamificación
   @Column({ default: 0 })
-  points: number;
+  points!: number;
 
   @Column({ default: 1 })
-  level: number;
+  level!: number;
 
   @CreateDateColumn()
-  createdAt: Date;
+  createdAt!: Date;
 }

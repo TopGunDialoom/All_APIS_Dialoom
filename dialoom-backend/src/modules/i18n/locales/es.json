@@ -1,0 +1,12 @@
+{
+  "general": {
+    "hello": "¡Hola, bienvenido a Dialoom!"
+  },
+  "errors": {
+    "not_found": "Recurso no encontrado.",
+    "unauthorized": "No estás autorizado."
+  },
+  "accessibility": {
+    "mode_active": "El modo de accesibilidad está activo."
+  }
+}

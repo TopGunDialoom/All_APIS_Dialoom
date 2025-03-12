@@ -7,8 +7,7 @@ import { PaymentsModule } from './modules/payments/payments.module';
 import { MailerModule } from './modules/mailer/mailer.module';
 
 @Module({
-  imports: [,,,
-    I18nModule
+  imports: [,,
     AdminModule
     NotificationsModule
     ConfigModule.forRoot({

@@ -1,25 +1,25 @@
 #!/usr/bin/env bash
 # ==========================================================================
 # dialoom_export_part1.sh
-# 
+#
 # Genera la base del Backend Dialoom (Part 1):
 #  - Apartado 2: Arquitectura del Backend (NestJS + MySQL + basic Stripe).
 #  - Apartado 3: Autenticación y Seguridad (JWT, local user/pass).
-# 
+#
 # Omitimos: Oauth, Apple/Google login, Twilio, Firebase, SendGrid... (futuro).
 # Incluimos placeholders para facilitar su futura integración.
-# 
+#
 # Escenarios:
 # DB: MySQL (MariaDB 10.6.18) en localhost:3306
 # user=ubuntu, pass=paczug-beGkov-0syvci, db=coreadmin
-# 
+#
 # Variables env: AGORA_APP_ID, AGORA_APP_CERT, STRIPE_SECRET_KEY, etc.
-# 
+#
 # 1) Crea carpeta dialoom-backend
 # 2) Genera archivos de NestJS base (AppModule, AuthModule, UsersModule, etc.)
 # 3) Estructura para Payment con Stripe minimal, sin retención avanzada.
 # 4) Deja placeholder MailService (usando SMTP Plesk).
-# 
+#
 # ==========================================================================
 
 mkdir -p dialoom-backend
@@ -289,7 +289,7 @@ export class AuthService {
 
   /**
    * validateUser:
-   * - Compara la password con el hash. 
+   * - Compara la password con el hash.
    * - Retorna true o false (o un user object) según convenga.
    */
   async validateUser(passwordPlain: string, passwordHash: string): Promise<boolean> {
@@ -452,7 +452,7 @@ import Stripe from 'stripe';
 
 /**
  * StripeService:
- *  - Versión simple para cobros básicos. 
+ *  - Versión simple para cobros básicos.
  *  - A futuro: retenciones, payouts, etc. (en la parte 6).
  */
 @Injectable()

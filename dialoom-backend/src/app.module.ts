@@ -7,7 +7,8 @@ import { PaymentsModule } from './modules/payments/payments.module';
 import { MailerModule } from './modules/mailer/mailer.module';
 
 @Module({
-  imports: [,,,
+  imports: [,,,,
+    ScalabilityModule
     I18nModule
     AdminModule
     NotificationsModule

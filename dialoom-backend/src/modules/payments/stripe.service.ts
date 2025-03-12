@@ -4,7 +4,7 @@ import Stripe from 'stripe';
 
 /**
  * StripeService:
- *  - Versión simple para cobros básicos. 
+ *  - Versión simple para cobros básicos.
  *  - A futuro: retenciones, payouts, etc. (en la parte 6).
  */
 @Injectable()

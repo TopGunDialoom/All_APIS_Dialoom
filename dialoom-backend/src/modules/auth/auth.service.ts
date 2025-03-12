@@ -10,7 +10,7 @@ export class AuthService {
 
   /**
    * validateUser:
-   * - Compara la password con el hash. 
+   * - Compara la password con el hash.
    * - Retorna true o false (o un user object) según convenga.
    */
   async validateUser(passwordPlain: string, passwordHash: string): Promise<boolean> {

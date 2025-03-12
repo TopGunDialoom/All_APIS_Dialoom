@@ -20,7 +20,7 @@ cd dialoom-backend || {
 echo "[INFO] Ahora estoy en: $(pwd)"
 
 # 3. Crear .env
-cat <<EOF > .env
+cat <<EOF > borraesto.env
 # ENV FILE DE PRUEBA
 DB_HOST=localhost
 DB_PORT=3306

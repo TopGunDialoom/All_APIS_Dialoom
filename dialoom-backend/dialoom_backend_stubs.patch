@@ -2,16 +2,12 @@ diff --git a/src/app.module.ts b/src/app.module.ts
 index 57ae8ef..0d82362 100644
 --- a/src/app.module.ts
 +++ b/src/app.module.ts
-@@ -1,14 +1,15 @@
+@@ -1,14 +1,18 @@
  import { Module } from '@nestjs/common';
  import { ConfigModule, ConfigService } from '@nestjs/config';
  import { TypeOrmModule } from '@nestjs/typeorm';
-+import { ScalabilityModule } from './scalability/scalability.module';
-+import { I18nModule } from './i18n/i18n.module';
-+import { AdminModule } from './modules/admin/admin.module';
-+import { NotificationsModule } from './modules/notifications/notifications.module';
- import { AppController } from './app.controller';
- import { AppService } from './app.service';
+-import { AppController } from './app.controller';
+-import { AppService } from './app.service';
  import { AuthModule } from './modules/auth/auth.module';
  import { UsersModule } from './modules/users/users.module';
  import { PaymentsModule } from './modules/payments/payments.module';
@@ -19,42 +15,44 @@ index 57ae8ef..0d82362 100644
 -import { GamificationModule } from './modules/gamification/gamification.module';
 -import { ModerationModule } from './modules/moderation/moderation.module';
 
++import { ScalabilityModule } from './scalability/scalability.module';
++import { I18nModule } from './i18n/i18n.module';
++import { AdminModule } from './modules/admin/admin.module';
++import { NotificationsModule } from './modules/notifications/notifications.module';
++import { AppController } from './app.controller';
++import { AppService } from './app.service';
++
  @Module({
    imports: [
-@@ -16,12 +17,14 @@
-     I18nModule,
-     AdminModule,
-     NotificationsModule,
--    GamificationModule,
--    ModerationModule,
++    ScalabilityModule,
++    I18nModule,
++    AdminModule,
++    NotificationsModule,
      ConfigModule.forRoot({
        isGlobal: true,
      }),
-     TypeOrmModule.forRootAsync({
-+      // Ajusta tus variables de entorno:
-+      // DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME
-+      // MySQL en 127.0.0.1:3306
-+
-       imports: [ConfigModule],
+@@ -16,12 +20,10 @@ import { ModerationModule } from './modules/moderation/moderation.module';
        useFactory: (config: ConfigService) => ({
          type: 'mysql',
-@@ -38,6 +41,7 @@
+         host: config.get<string>('DB_HOST', '127.0.0.1'),
+         port: +config.get<number>('DB_PORT', 3306),
+         username: config.get<string>('DB_USER', 'root'),
+         password: config.get<string>('DB_PASSWORD', ''),
+         database: config.get<string>('DB_NAME', 'coreadmin'),
          synchronize: false,
        }),
        inject: [ConfigService],
-+    }),
+     }),
      AuthModule,
      UsersModule,
      PaymentsModule,
-@@ -46,5 +50,7 @@
+     ReservationsModule,
+-    GamificationModule,
+-    ModerationModule,
    ],
    controllers: [AppController],
    providers: [AppService],
--})
-+})
- export class AppModule {}
-+
-
+---
 diff --git a/src/scalability/scalability.module.ts b/src/scalability/scalability.module.ts
 new file mode 100644
 index 0000000..fcfbbb1
@@ -73,10 +71,10 @@ index 0000000..fcfbbb1
 +
 +/**
 + * Módulo ficticio (stub) para que "ScalabilityModule" exista
-+ * y no genere error de import. 
++ * y no genere error de import en app.module.
 + * Completa o elimina según tus necesidades reales.
 + */
-
+---
 diff --git a/src/i18n/i18n.module.ts b/src/i18n/i18n.module.ts
 new file mode 100644
 index 0000000..be9b292
@@ -97,7 +95,7 @@ index 0000000..be9b292
 + * Stub de I18nModule, para que app.module no falle.
 + * Ya tienes un i18n.service.ts, así que lo inyectamos aquí.
 + */
-
+---
 diff --git a/src/modules/notifications/notifications.module.ts b/src/modules/notifications/notifications.module.ts
 new file mode 100644
 index 0000000..8818557
@@ -117,11 +115,11 @@ index 0000000..8818557
 +/**
 + * Stub de NotificationsModule para que app.module no falle
 + * con la import { NotificationsModule } ...
-+ * 
++ *
 + * Reúne aquí lo que tengas en notifications/...
 + * p.ej. TwilioService, etc.
 + */
-
+---
 diff --git a/src/modules/admin/admin.module.ts b/src/modules/admin/admin.module.ts
 new file mode 100644
 index 0000000..0348593
@@ -152,7 +150,7 @@ index 0000000..0348593
 +/**
 + * Módulo Admin con un service y controller stubs
 + */
-
+---
 diff --git a/src/modules/admin/admin.service.ts b/src/modules/admin/admin.service.ts
 index 242c499..cbb56df 100644
 --- a/src/modules/admin/admin.service.ts
@@ -161,7 +159,7 @@ index 242c499..cbb56df 100644
  import { Injectable } from '@nestjs/common';
 -// import { UsersService } from '../users/users.service';
 -// import { PaymentsService } from '../payments/payments.service';
-+// EJEMPLO: 
++// EJEMPLO:
 +// import { UsersService } from '../users/users.service';
 +// import { PaymentsService } from '../payments/payments.service';
 
@@ -182,15 +180,15 @@ index 242c499..cbb56df 100644
    }
 
 -  // If you do NOT have these methods in your real services, comment them out:
--  // 
+-  //
 -  // async saveUserInAdmin(user: any) {
 -  //   await this.usersService.saveUser(user);
 -  // }
--  // 
+-  //
 -  // findAllTransactions() {
 -  //   return this.paymentsService.findAllTransactions();
 -  // }
-+  // Ejemplo: 
++  // Ejemplo:
 +  async saveUserInAdmin(user: any) {
 +    // if (this.usersService?.saveUser) {
 +    //   await this.usersService.saveUser(user);
@@ -206,7 +204,7 @@ index 242c499..cbb56df 100644
 +    return [];
 +  }
  }
-
+---
 diff --git a/src/common/guards/roles.guard.ts b/src/common/guards/roles.guard.ts
 new file mode 100644
 index 0000000..bbed631
@@ -229,7 +227,7 @@ index 0000000..bbed631
 +/**
 + * Para que no falle la import { RolesGuard } from '../../common/guards/roles.guard';
 + */
-
+---
 diff --git a/src/common/decorators/roles.decorator.ts b/src/common/decorators/roles.decorator.ts
 new file mode 100644
 index 0000000..8a012d4
@@ -244,13 +242,13 @@ index 0000000..8a012d4
 +}
 +
 +/**
-+ * Para que no falle: 
++ * Para que no falle:
 + * import { Roles } from '../../common/decorators/roles.decorator';
-+ * 
-+ * Solo define la metadata. 
-+ * Combined with RolesGuard, se comprueba en canActivate() 
++ *
++ * Solo define la metadata.
++ * Combined with RolesGuard, se comprueba en canActivate()
 + */
-
+---
 diff --git a/src/users/entities/user.entity.ts b/src/users/entities/user.entity.ts
 new file mode 100644
 index 0000000..eb6ccde
@@ -276,13 +274,14 @@ index 0000000..eb6ccde
 +}
 +
 +/**
-+ * Minimísimo. 
++ * Minimísimo.
 + * Para que no falle "import { User } from '../../users/entities/user.entity';"
 + */
-
+---
 diff --git a/src/modules/users/users.service.ts b/src/modules/users/users.service.ts
-index 0000000..1234567
---- a/src/modules/users/users.service.ts
+new file mode 100644
+index 0000000..7a0d73d
+--- /dev/null
 +++ b/src/modules/users/users.service.ts
 @@ -0,0 +1,43 @@
 +import { Injectable } from '@nestjs/common';
@@ -329,7 +328,7 @@ index 0000000..1234567
 +/**
 + * Stub de UsersService para que "saveUser" no cause error.
 + */
-
+---
 diff --git a/src/modules/payments/payments.service.ts b/src/modules/payments/payments.service.ts
 index e6cba5f..6a3fbbb 100644
 --- a/src/modules/payments/payments.service.ts
@@ -342,7 +341,7 @@ index e6cba5f..6a3fbbb 100644
 +   */
 +  findAllTransactions() {
 +    // en tu caso, podrías leer PaymentEntity, etc.
-+    // return this.paymentRepo.find(); 
++    // return this.paymentRepo.find();
 +    return [];
 +  }
 +
@@ -350,6 +349,7 @@ index e6cba5f..6a3fbbb 100644
     * Ejemplo: confirm PaymentIntent
     */
    async confirmPaymentIntent(/*...*/) {
+---
 diff --git a/src/modules/gamification/gamification.module.ts b/src/modules/gamification/gamification.module.ts
 new file mode 100644
 index 0000000..0bd8841
@@ -375,10 +375,10 @@ index 0000000..0bd8841
 +export class GamificationModule {}
 +
 +/**
-+ * Deja un placeholder. 
++ * Deja un placeholder.
 + * Ya se usaba en app.module? Perfecto.
 + */
-
+---
 diff --git a/src/modules/moderation/moderation.module.ts b/src/modules/moderation/moderation.module.ts
 new file mode 100644
 index 0000000..8c5e08b
@@ -401,10 +401,10 @@ index 0000000..8c5e08b
 +export class ModerationModule {}
 +
 +/**
-+ * Stub. 
++ * Stub.
 + * Evita error al import { ModerationModule } from ...
 + */
-
+---
 diff --git a/src/modules/moderation/moderation.controller.ts b/src/modules/moderation/moderation.controller.ts
 index c08bd8b..f99052b 100644
 --- a/src/modules/moderation/moderation.controller.ts
@@ -424,12 +424,12 @@ index c08bd8b..f99052b 100644
      const { reporterId, accusedId, reason, details } = data;
 -    return this.moderationService.createReport(reporterId, accusedId, reason, details);
 +    return this.moderationService.createReport(
-+      Number(reporterId || 0), 
++      Number(reporterId || 0),
 +      Number(accusedId || 0),
 +      reason, details);
    }
  }
-
+---
 diff --git a/src/modules/moderation/moderation.service.ts b/src/modules/moderation/moderation.service.ts
 index 1fc43ff..afe9351 100644
 --- a/src/modules/moderation/moderation.service.ts
@@ -450,7 +450,7 @@ index 1fc43ff..afe9351 100644
 +    return `Report created: from user ${reporterId}, to user ${accusedId}, reason=${reason}`;
    }
  }
-
+---
 diff --git a/src/modules/moderation/report.entity.ts b/src/modules/moderation/report.entity.ts
 index e2f7d90..5fb1ca3 100644
 --- a/src/modules/moderation/report.entity.ts
@@ -473,8 +473,7 @@ index e2f7d90..5fb1ca3 100644
 +
    @Column({ nullable: true })
    reason?: string;
-
-diff --git a/src/modules/reservations/reservations.service.ts b/src/modules/reservations/reservations.service.ts
+   diff --git a/src/modules/reservations/reservations.service.ts b/src/modules/reservations/reservations.service.ts
 index def5270..7ada159 100644
 --- a/src/modules/reservations/reservations.service.ts
 +++ b/src/modules/reservations/reservations.service.ts
@@ -484,16 +483,17 @@ index def5270..7ada159 100644
  
 -// import { RtcRole } from 'agora-access-token'; // si no lo tienes, define un stub
 +/**
-+ * Si uses 'agora-access-token' con:
++ * Si usas 'agora-access-token' con:
 + *   import { RtcRole } from 'agora-access-token';
 + *   define:
 + *   export enum RtcRole { PUBLISHER = 1, SUBSCRIBER = 2 }
 + */
+
 +export enum RtcRole {
 +  PUBLISHER = 1,
 +  SUBSCRIBER = 2
 +}
-
+ 
  @Injectable()
  export class ReservationsService {
    constructor(
@@ -504,18 +504,13 @@ index def5270..7ada159 100644
 +   * Generar un token de Agora. Stub:
 +   */
    generateAgoraToken(channelName: string, userId: string | number, role: RtcRole = RtcRole.PUBLISHER): string {
-     // ...
-+    // normal usage -> return RtcTokenBuilder.buildTokenWithAccount(...)
-+    // => for now:
+     // normal usage -> return RtcTokenBuilder.buildTokenWithAccount(...)
      return 'fake-agora-token';
-   }
-
 @@ -22,8 +38,8 @@ export class ReservationsService {
 
    joinSession(channel: string, userId: string | number) {
      // ...
 -    String(userId),
 +    // e.g. String(userId)
-
    }
  }

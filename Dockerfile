@@ -1,19 +1,10 @@
-# Dockerfile: Construye la imagen para el backend de Dialoom (versión final optimizada)
-
-# Etapa 1: build
-FROM node:18-alpine AS builder
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci
-COPY . .
-RUN npm run build
-
-# Etapa 2: runtime
-FROM node:18-alpine
-WORKDIR /app
-COPY --from=builder /app/package*.json ./
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/dist ./dist
+FROM node:lts-alpine
 ENV NODE_ENV=production
+WORKDIR /usr/src/app
+COPY ["package.json", "package-lock.json*", "npm-shrinkwrap.json*", "./"]
+RUN npm install --production --silent && mv node_modules ../
+COPY . .
 EXPOSE 3000
-CMD ["node", "dist/main.js"]
+RUN chown -R node /usr/src/app
+USER node
+CMD ["npm", "start"]

@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ThemeSettings } from './entities/theme-settings.entity';
 import { Content, ContentType } from './entities/content.entity';
+import { Repository, MoreThanOrEqual, LessThanOrEqual } from 'typeorm';
 
 @Injectable()
 export class AdminService {

@@ -37,7 +37,7 @@ export class Availability {
   recurrenceType: RecurrenceType;
 
   @Column({ type: 'simple-array', nullable: true })
-  daysOfWe
+  daysOfWeek
   ek: string[];
 
   @Column({ type: 'boolean', default: true })

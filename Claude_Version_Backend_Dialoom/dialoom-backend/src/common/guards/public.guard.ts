@@ -3,9 +3,12 @@ import { Reflector } from '@nestjs/core';
 import { AuthGuard } from '@nestjs/passport';
 
 export const IS_PUBLIC_KEY = 'isPublic';
-export const Public = () => (target, key, descriptor) => {
-  Reflector.defineMetadata(IS_PUBLIC_KEY, true, descriptor.value);
-  return descriptor;
+export const Public = () => {
+  return (target: any, key: string, descriptor: PropertyDescriptor) => {
+    const reflector = new Reflector();
+    reflector.defineMetadata(IS_PUBLIC_KEY, true, descriptor.value);
+    return descriptor;
+  };
 };
 
 @Injectable()

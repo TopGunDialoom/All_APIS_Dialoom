@@ -124,8 +124,14 @@ export class PaymentsService {
     const paymentIntent = await this.stripeService.getPaymentIntent(paymentIntentId);
     
     transaction.status = TransactionStatus.COMPLETED;
-    if (paymentIntent.charges.data.length > 0) {
-      transaction.stripeChargeId = paymentIntent.charges.data[0].id;
+    
+    // Usar una verificación más segura con typecasting
+    const paymentIntentAny = paymentIntent as any;
+    if (paymentIntentAny &&
+        paymentIntentAny.charges &&
+        paymentIntentAny.charges.data &&
+        paymentIntentAny.charges.data.length > 0) {
+      transaction.stripeChargeId = paymentIntentAny.charges.data[0].id;
     }
     
     return this.transactionsRepository.save(transaction);

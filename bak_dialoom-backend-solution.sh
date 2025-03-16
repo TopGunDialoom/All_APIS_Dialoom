@@ -3,41 +3,12 @@
 # Script para reconstruir completamente el backend de Dialoom
 # Este script generará una estructura completa de proyecto NestJS desde cero
 
-set -e  # Detener el script si ocurre algún error
-
 # Colores para mejorar la legibilidad
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
-RED='\033[0;31m'
 NC='\033[0m'
 
-# Función para manejo de errores
-handle_error() {
-  echo -e "${RED}Error en la línea $1${NC}"
-  echo -e "${RED}Algo salió mal durante la ejecución del script. Por favor revise los mensajes de error anteriores.${NC}"
-  exit 1
-}
-
-# Configurar trap para capturar errores
-trap 'handle_error $LINENO' ERR
-
 echo -e "${GREEN}=== Iniciando reconstrucción del backend de Dialoom ===${NC}"
-
-# Verificar requisitos previos
-echo -e "${YELLOW}Verificando requisitos previos...${NC}"
-
-# Verificar Node.js y npm
-if ! command -v node &> /dev/null; then
-  echo -e "${RED}Node.js no está instalado. Por favor instale Node.js (v14 o superior) y vuelva a intentarlo.${NC}"
-  exit 1
-fi
-
-# Verificar versión de Node.js (necesitamos 14+)
-NODE_VERSION=$(node -v | cut -d 'v' -f 2 | cut -d '.' -f 1)
-if [ "$NODE_VERSION" -lt 14 ]; then
-  echo -e "${RED}Versión de Node.js demasiado antigua. Se necesita v14 o superior. Versión actual: $(node -v)${NC}"
-  exit 1
-fi
 
 # 1. Crear un nuevo proyecto NestJS y limpiar el directorio existente
 echo -e "${YELLOW}Paso 1: Creando estructura base del proyecto${NC}"
@@ -45,34 +16,23 @@ echo -e "${YELLOW}Paso 1: Creando estructura base del proyecto${NC}"
 # Verificar si existe el directorio dialoom-backend
 if [ -d "dialoom-backend" ]; then
   echo "Haciendo backup del proyecto existente..."
-  BACKUP_DIR="dialoom-backend-backup-$(date +%Y%m%d%H%M%S)"
-  mv dialoom-backend "$BACKUP_DIR"
-  echo "Backup creado en $BACKUP_DIR"
+  mv dialoom-backend dialoom-backend-backup-$(date +%Y%m%d%H%M%S)
 fi
 
-# Instalar NestJS CLI si no está instalado (preferimos npx para evitar problemas de permisos)
-echo "Verificando NestJS CLI..."
+# Instalar NestJS CLI si no está instalado
 if ! command -v nest &> /dev/null; then
-  echo "NestJS CLI no está instalado globalmente. Usaremos npx."
-  NEST_CMD="npx @nestjs/cli"
-else
-  NEST_CMD="nest"
+  echo "Instalando NestJS CLI..."
+  npm i -g @nestjs/cli
 fi
 
 # Crear nuevo proyecto
-echo "Creando nuevo proyecto NestJS..."
-$NEST_CMD new dialoom-backend --package-manager npm --skip-git --skip-install
+nest new dialoom-backend --package-manager npm
 cd dialoom-backend
-echo "Instalando dependencias base de NestJS..."
-npm install
 
 # 2. Instalar dependencias necesarias
 echo -e "${YELLOW}Paso 2: Instalando dependencias${NC}"
-echo "Instalando dependencias principales..."
-npm install --save @nestjs/typeorm typeorm mysql2 bcrypt class-validator class-transformer passport passport-jwt passport-local @nestjs/passport @nestjs/jwt @nestjs/config @nestjs/swagger stripe uuid multer cors
-
-echo "Instalando dependencias de desarrollo..."
-npm install --save-dev @types/passport-jwt @types/passport-local @types/bcrypt @types/multer @types/uuid @types/cors
+npm install --save @nestjs/typeorm typeorm mysql2 bcrypt class-validator class-transformer passport passport-jwt passport-local @nestjs/passport @nestjs/jwt dotenv config stripe uuid multer
+npm install --save-dev @types/passport-jwt @types/passport-local @types/bcrypt @types/multer @types/uuid
 
 # 3. Crear estructura base
 echo -e "${YELLOW}Paso 3: Creando estructura del proyecto${NC}"
@@ -181,19 +141,6 @@ export const databaseConfig: TypeOrmModuleOptions = {
   entities: [__dirname + '/../**/*.entity{.ts,.js}'],
   synchronize: process.env.NODE_ENV !== 'production',
   logging: process.env.NODE_ENV === 'development',
-  // Opciones adicionales para mejor rendimiento y seguridad
-  charset: 'utf8mb4',
-  timezone: 'Z', // UTC
-  connectTimeout: 30000, // Aumentar tiempo de conexión para entornos lentos
-  extra: {
-    connectionLimit: 10, // Límite de conexiones simultáneas
-  },
-  // Verificar la conexión antes de ejecutar consultas
-  keepConnectionAlive: true,
-  // Opciones para migraciones
-  migrations: [__dirname + '/../migrations/**/*{.ts,.js}'],
-  migrationsTableName: 'migrations',
-  migrationsRun: false, // No ejecutar migraciones automáticamente
 };
 EOL
 
@@ -1580,114 +1527,16 @@ echo -e "${YELLOW}Paso 6: Generando módulos esqueleto para completar la estruct
 echo -e "${YELLOW}Paso 7: Actualizando package.json${NC}"
 
 # Actualizar package.json para incluir scripts de semilla
-if command -v jq &> /dev/null; then
-  echo "Actualizando package.json con jq..."
-  jq '.scripts += {"seed": "ts-node src/config/seed.ts", "migration:generate": "typeorm-ts-node-commonjs migration:generate", "migration:run": "typeorm-ts-node-commonjs migration:run"}' package.json > package.json.tmp && mv package.json.tmp package.json
-else
-  echo "jq no está instalado. Actualizando package.json manualmente..."
-  # Crear un archivo package.json temporal con los scripts adicionales
-  node -e "
-    const fs = require('fs');
-    const pkg = JSON.parse(fs.readFileSync('./package.json', 'utf8'));
-    pkg.scripts = {
-      ...pkg.scripts,
-      'seed': 'ts-node src/config/seed.ts',
-      'migration:generate': 'typeorm-ts-node-commonjs migration:generate',
-      'migration:run': 'typeorm-ts-node-commonjs migration:run'
-    };
-    fs.writeFileSync('./package.json', JSON.stringify(pkg, null, 2));
-  "
-fi
+jq '.scripts += {"seed": "ts-node src/config/seed.ts"}' package.json > package.json.tmp && mv package.json.tmp package.json
 
-# 8. Verificar conexión a MySQL y crear base de datos si es necesario
-echo -e "${YELLOW}Paso 8: Verificando conexión a MySQL${NC}"
-
-read -p "¿Deseas configurar automáticamente la base de datos MySQL ahora? (s/n): " configure_db
-
-if [ "$configure_db" = "s" ] || [ "$configure_db" = "S" ]; then
-  read -p "Host de MySQL (por defecto localhost): " db_host
-  db_host=${db_host:-localhost}
-  
-  read -p "Puerto de MySQL (por defecto 3306): " db_port
-  db_port=${db_port:-3306}
-  
-  read -p "Usuario de MySQL: " db_user
-  
-  read -sp "Contraseña de MySQL (no se mostrará): " db_pass
-  echo ""
-  
-  read -p "Nombre de la base de datos (por defecto dialoom): " db_name
-  db_name=${db_name:-dialoom}
-  
-  # Verificar conexión a MySQL
-  echo "Verificando conexión a MySQL..."
-  if command -v mysql &> /dev/null; then
-    # Intentar conectar a MySQL
-    if mysql -h "$db_host" -P "$db_port" -u "$db_user" --password="$db_pass" -e "SELECT 1" &> /dev/null; then
-      echo "Conexión a MySQL exitosa."
-      
-      # Verificar si la base de datos existe, si no, crearla
-      if ! mysql -h "$db_host" -P "$db_port" -u "$db_user" --password="$db_pass" -e "USE $db_name" &> /dev/null; then
-        echo "La base de datos $db_name no existe. Creándola..."
-        mysql -h "$db_host" -P "$db_port" -u "$db_user" --password="$db_pass" -e "CREATE DATABASE $db_name CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"
-        echo "Base de datos $db_name creada exitosamente."
-      else
-        echo "La base de datos $db_name ya existe."
-      fi
-      
-      # Actualizar el archivo .env con los datos de conexión
-      cat > .env << EOL
-# Entorno
-NODE_ENV=development
-PORT=3000
-
-# Base de datos
-DB_HOST=$db_host
-DB_PORT=$db_port
-DB_USERNAME=$db_user
-DB_PASSWORD=$db_pass
-DB_NAME=$db_name
-
-# JWT
-JWT_SECRET=dialoom_secret_key_change_in_production
-JWT_EXPIRATION=1d
-
-# Stripe
-STRIPE_SECRET_KEY=sk_test_your_stripe_key
-EOL
-      echo "Archivo .env actualizado con los datos de conexión."
-    else
-      echo -e "${RED}No se pudo conectar a MySQL. Verifica las credenciales e intenta nuevamente.${NC}"
-      echo "El archivo .env deberá ser configurado manualmente."
-    fi
-  else
-    echo -e "${YELLOW}El cliente MySQL no está instalado. No se pudo verificar la conexión.${NC}"
-    echo "El archivo .env deberá ser configurado manualmente."
-  fi
-fi
-
-# 9. Instrucciones finales
+# 8. Instrucciones finales
 echo -e "${GREEN}=== ¡Reconstrucción completada! ===${NC}"
 echo -e "La estructura completa del backend de Dialoom ha sido creada."
-echo -e ""
-echo -e "${GREEN}Para iniciar la aplicación, sigue estos pasos:${NC}"
-echo -e "1. Configura la base de datos MySQL (si no lo hiciste durante la instalación)"
-echo -e "   - Edita el archivo .env con tus credenciales de MySQL"
-echo -e ""
-echo -e "2. Inicializa la base de datos y crea el usuario administrador:"
-echo -e "   cd dialoom-backend"
-echo -e "   npm run seed"
-echo -e ""
-echo -e "3. Inicia la aplicación:"
-echo -e "   npm run start:dev"
-echo -e ""
-echo -e "4. Accede a la documentación API en http://localhost:3000/api/docs"
-echo -e ""
-echo -e "5. Usa las siguientes credenciales para el usuario administrador inicial:"
-echo -e "   - Email: admin@dialoom.com"
-echo -e "   - Contraseña: admin123"
-echo -e ""
-echo -e "${YELLOW}IMPORTANTE: Cambia la contraseña del administrador y el JWT_SECRET en producción${NC}"
+echo -e "Para iniciar la aplicación, sigue estos pasos:"
+echo -e "1. Configura la base de datos MySQL"
+echo -e "2. Revisa y edita el archivo .env si es necesario"
+echo -e "3. Ejecuta 'npm run seed' para inicializar la base de datos"
+echo -e "4. Inicia la aplicación con 'npm run start:dev'"
+echo -e "5. Accede a la documentación API en http://localhost:3000/api/docs"
 
-# Volver al directorio original
 cd ..

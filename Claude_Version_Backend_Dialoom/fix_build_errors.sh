@@ -1,7 +1,20 @@
 #!/bin/bash
 
+# Verificar si estamos en la carpeta correcta del proyecto
+if [ ! -f "./package.json" ]; then
+  echo "Error: Este script debe ejecutarse desde la carpeta raíz del proyecto"
+  exit 1
+fi
+
+echo "Corrigiendo errores comunes en el código fuente..."
+
+# Crear la carpeta src si no existe
+mkdir -p src/common/{decorators,filters,guards,interceptors,pipes} \
+         src/modules/{auth/{strategies,guards,dto},users/{entities,dto},hosts/{entities,dto},reservations/{entities,dto},payments/{entities,dto},calls/{entities,dto},notifications/{channels,entities,dto},gamification/{entities,dto},admin/{entities,dto},i18n}
+
 # Corregir public.guard.ts
-cat > src/common/guards/public.guard.ts << 'EOF'
+if [ -f "src/common/guards/public.guard.ts" ]; then
+  cat > src/common/guards/public.guard.ts << 'EOF'
 import { ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { AuthGuard } from '@nestjs/passport';
@@ -35,21 +48,36 @@ export class PublicGuard extends AuthGuard('jwt') {
   }
 }
 EOF
+  echo "✅ Corregido: src/common/guards/public.guard.ts"
+fi
 
 # Corregir admin.service.ts (agregar importaciones)
-sed -i '1s/^/import { Repository, MoreThanOrEqual, LessThanOrEqual } from "typeorm";\n/' src/modules/admin/admin.service.ts
+if [ -f "src/modules/admin/admin.service.ts" ]; then
+  sed -i '1s/^/import { Repository, MoreThanOrEqual, LessThanOrEqual } from "typeorm";\n/' src/modules/admin/admin.service.ts
+  echo "✅ Corregido: src/modules/admin/admin.service.ts"
+fi
 
 # Corregir availability.entity.ts (corregir el nombre de la propiedad)
-sed -i 's/daysOfWe\n  ek/daysOfWeek/' src/modules/reservations/entities/availability.entity.ts
+if [ -f "src/modules/reservations/entities/availability.entity.ts" ]; then
+  sed -i 's/daysOfWe\n  ek/daysOfWeek/' src/modules/reservations/entities/availability.entity.ts
+  echo "✅ Corregido: src/modules/reservations/entities/availability.entity.ts"
+fi
 
 # Corregir i18n.service.ts
-sed -i '54s/sectionStack.push(currentSection\[sectionStack\[sectionStack.length - 1\]\]);/if (typeof sectionStack[sectionStack.length - 1] === "string") {\n                  const key = sectionStack[sectionStack.length - 1] as string;\n                  sectionStack.push(currentSection[key]);\n                }/' src/modules/i18n/i18n.service.ts
+if [ -f "src/modules/i18n/i18n.service.ts" ]; then
+  sed -i '54s/sectionStack.push(currentSection\[sectionStack\[sectionStack.length - 1\]\]);/if (typeof sectionStack[sectionStack.length - 1] === "string") {\n                  const key = sectionStack[sectionStack.length - 1] as string;\n                  sectionStack.push(currentSection[key]);\n                }/' src/modules/i18n/i18n.service.ts
+  echo "✅ Corregido: src/modules/i18n/i18n.service.ts"
+fi
 
 # Corregir payments.controller.ts
-sed -i '129s/await this.paymentsService.handlePaymentIntentSucceeded(paymentIntent.id);/const pi = paymentIntent as any;\n          if (pi && pi.id) {\n            await this.paymentsService.handlePaymentIntentSucceeded(pi.id);\n          }/' src/modules/payments/payments.controller.ts
+if [ -f "src/modules/payments/payments.controller.ts" ]; then
+  sed -i '129s/await this.paymentsService.handlePaymentIntentSucceeded(paymentIntent.id);/const pi = paymentIntent as any;\n          if (pi && pi.id) {\n            await this.paymentsService.handlePaymentIntentSucceeded(pi.id);\n          }/' src/modules/payments/payments.controller.ts
+  echo "✅ Corregido: src/modules/payments/payments.controller.ts"
+fi
 
 # Corregir payments.service.ts
-cat > src/modules/payments/payments.service.ts.fix << 'EOF'
+if [ -f "src/modules/payments/payments.service.ts" ]; then
+  cat > src/modules/payments/payments.service.ts << 'EOF'
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, LessThanOrEqual, IsNull } from 'typeorm';
@@ -257,10 +285,12 @@ export class PaymentsService {
   }
 }
 EOF
-mv src/modules/payments/payments.service.ts.fix src/modules/payments/payments.service.ts
+  echo "✅ Reescrito completamente: src/modules/payments/payments.service.ts"
+fi
 
 # Corregir reservations.service.ts
-cat > src/modules/reservations/reservations.service.ts.fix << 'EOF'
+if [ -f "src/modules/reservations/reservations.service.ts" ]; then
+  cat > src/modules/reservations/reservations.service.ts << 'EOF'
 import {
   Injectable,
   NotFoundException,
@@ -625,6 +655,7 @@ export class ReservationsService {
   }
 }
 EOF
-mv src/modules/reservations/reservations.service.ts.fix src/modules/reservations/reservations.service.ts
+  echo "✅ Reescrito completamente: src/modules/reservations/reservations.service.ts"
+fi
 
-echo "Correcciones aplicadas. Intenta compilar nuevamente."
+echo "Todas las correcciones han sido aplicadas. El código ahora debería construirse correctamente."
